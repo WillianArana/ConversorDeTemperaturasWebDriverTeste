@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ConversorDeTemperaturasWebDriverTeste
@@ -19,7 +20,7 @@ namespace ConversorDeTemperaturasWebDriverTeste
         public static void Start()
         {
             const string url = "http://localhost:52694/";
-            var browser = Browsers.Chrome;
+            var browser = Browsers.Firefox;
          
             switch (browser)
             {
@@ -48,12 +49,30 @@ namespace ConversorDeTemperaturasWebDriverTeste
         [Test]
         public static void TestandoConversorDeTemperatura()
         {
-            var inputTemp = driver.FindElement(By.Id("celsius"));
+            var inputTemp = driver.FindElement(By.Id("CelsiusIdInput"));
             inputTemp.Clear();
             inputTemp.SendKeys("5");
             inputTemp.Submit();
 
-            Assert.Pass();
+            try
+            {
+                Thread.Sleep(100);
+            }
+            catch (ThreadInterruptedException e)
+            {
+                throw new Exception(e.Message);
+            }
+           
+            var celsius = driver.FindElement(By.Id("CelsiusIdSpan")).Text.Trim();
+            var fahrenheit = driver.FindElement(By.Id("FahrenheitIdSpan")).Text.Trim();
+
+            var mensagem = "Não obter resposta";
+            Assert.That(celsius, Is.Not.Null.Or.Empty, mensagem);
+            Assert.That(fahrenheit, Is.Not.Null.Or.Empty, mensagem);
+
+            mensagem = "Não foi possivel converter!";
+
+            Assert.That(celsius, Is.Not.EqualTo(fahrenheit), mensagem);
         }
 
     }
