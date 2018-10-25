@@ -2,6 +2,7 @@
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -51,22 +52,20 @@ namespace ConversorDeTemperaturasWebDriverTeste
         {
             var inputTemp = driver.FindElement(By.Id("CelsiusIdInput"));
             inputTemp.Clear();
-            inputTemp.SendKeys("5");
+            inputTemp.SendKeys("u");
             inputTemp.Submit();
 
-            try
-            {
-                Thread.Sleep(100);
-            }
-            catch (ThreadInterruptedException e)
-            {
-                throw new Exception(e.Message);
-            }
-           
-            var celsius = driver.FindElement(By.Id("CelsiusIdSpan")).Text.Trim();
-            var fahrenheit = driver.FindElement(By.Id("FahrenheitIdSpan")).Text.Trim();
+            WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(100));
 
-            var mensagem = "Não obter resposta";
+            var dynamicElement = wait.Until<IWebElement>(d => d.FindElement(By.Id("CelsiusIdSpan")));
+
+            var celsius = dynamicElement.Text;
+
+            dynamicElement = wait.Until<IWebElement>(d => d.FindElement(By.Id("FahrenheitIdSpan")));
+            var fahrenheit = dynamicElement.Text;
+
+
+            var mensagem = "Não obteve resposta";
             Assert.That(celsius, Is.Not.Null.Or.Empty, mensagem);
             Assert.That(fahrenheit, Is.Not.Null.Or.Empty, mensagem);
 
